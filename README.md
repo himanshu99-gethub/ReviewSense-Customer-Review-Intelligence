@@ -167,7 +167,7 @@ REV-001,PROD-101,USER-77,5,"Outstanding battery life and great build quality.",2
 ### 1. Setup Virtual Environment
 ```bash
 # Clone or navigate to the repository
-cd "d:\Project\CourseMate AI"
+cd "d:\Project\ReviewSense Customer Review Intelligence"
 
 # Create virtual environment
 python -m venv .venv
