@@ -1,0 +1,67 @@
+{
+  "model_version": "v1.2-tfidf-logreg",
+  "model_type": "TF-IDF (1,2-grams) + Logistic Regression (balanced)",
+  "accuracy": 75.56,
+  "macro_precision": 81.21,
+  "macro_recall": 75.15,
+  "macro_f1": 75.62,
+  "total_samples": 177,
+  "train_samples": 132,
+  "test_samples": 45,
+  "class_distribution_train": {
+    "Negative": 48,
+    "Positive": 44,
+    "Neutral": 40
+  },
+  "class_distribution_test": {
+    "Negative": 17,
+    "Positive": 15,
+    "Neutral": 13
+  },
+  "confusion_matrix": {
+    "labels": [
+      "Negative",
+      "Neutral",
+      "Positive"
+    ],
+    "matrix": [
+      [
+        12,
+        0,
+        5
+      ],
+      [
+        2,
+        8,
+        3
+      ],
+      [
+        1,
+        0,
+        14
+      ]
+    ]
+  },
+  "per_class_metrics": {
+    "Negative": {
+      "precision": 80.0,
+      "recall": 70.59,
+      "f1_score": 75.0,
+      "support": 17
+    },
+    "Neutral": {
+      "precision": 100.0,
+      "recall": 61.54,
+      "f1_score": 76.19,
+      "support": 13
+    },
+    "Positive": {
+      "precision": 63.64,
+      "recall": 93.33,
+      "f1_score": 75.68,
+      "support": 15
+    }
+  },
+  "training_notes": "Trained on stratified multi-channel customer reviews. Evaluated on 25% held-out test split.",
+  "limitations": "Trained primarily on English e-commerce and SaaS feedback. Sarcasm, complex double negatives, and domain jargon may yield ambiguous neutral/negative scores."
+}

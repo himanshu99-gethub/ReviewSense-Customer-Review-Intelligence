@@ -1,0 +1,24 @@
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest & testing cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local agents & ide configurations
+.agents/
+.vscode/
+.idea/
+
+# OS specific files
+.DS_Store
+Thumbs.db

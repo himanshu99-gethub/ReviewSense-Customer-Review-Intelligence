@@ -1,0 +1,74 @@
+:root {
+  /* Strict Brand Color Palette */
+  --color-paper: #F6F4F1;
+  --color-stone: #E4DED2;
+  --color-coral: #F95C4B;
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+
+  /* Supporting Neutrals & Derived Tones */
+  --color-stone-light: #F0ECE4;
+  --color-stone-subtle: #ECE6DC;
+  --color-stone-border: #D8D0C2;
+  --color-stone-dark: #8C8476;
+  --color-ink: #111111;
+  --color-ink-muted: #57534E;
+  --color-ink-subtle: #8A847C;
+  --color-coral-hover: #E44837;
+  --color-coral-subtle: #FFF1F0;
+  --color-coral-border: #FCA59C;
+
+  /* Sentiment Status Colors (Accessible Functional Indicators) */
+  --sentiment-pos: #16A34A;
+  --sentiment-pos-bg: #EBF8EE;
+  --sentiment-pos-text: #14532D;
+  --sentiment-pos-border: #BBF7D0;
+
+  --sentiment-neu: #D97706;
+  --sentiment-neu-bg: #FEF3C7;
+  --sentiment-neu-text: #78350F;
+  --sentiment-neu-border: #FDE68A;
+
+  --sentiment-neg: #F95C4B;
+  --sentiment-neg-bg: #FEE8E6;
+  --sentiment-neg-text: #991B1B;
+  --sentiment-neg-border: #FECACA;
+
+  /* Typography */
+  --font-editorial: 'Newsreader', 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Spacing Scale (8px baseline) */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+
+  /* Refined Editorial Shadows (Subtle, no generic AI glow) */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-elevated: 0 12px 28px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.03);
+  --shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+
+  /* Transitions & Motion Tokens */
+  --duration-stagger: 40ms;
+  --duration-micro: 80ms;
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --duration-medium: 350ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+}

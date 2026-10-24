@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReviewSense — Customer Review Intelligence</title>
+  <meta name="description" content="Turn customer feedback into meaningful insights with TF-IDF and Logistic Regression NLP analytics.">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+
+  <!-- Brand CSS Design Tokens & Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/transitions.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+  <!-- Chart.js v4 for accessible data visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- ==================================================================== -->
+    <!-- 1. Sidebar (Black #000000)                                           -->
+    <!-- ==================================================================== -->
+    <aside class="sidebar" id="sidebar" aria-label="Main Navigation">
+      <div class="sidebar-header">
+        <div class="brand-wrap">
+          <div class="brand-mark" aria-hidden="true">R</div>
+          <div class="brand-text">
+            <span class="brand-name">ReviewSense</span>
+            <span class="brand-tagline">Intelligence</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <span class="nav-section-title">Analytics</span>
+
+        <a class="nav-item active" data-view="overview" id="nav-overview" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          <span>Overview</span>
+        </a>
+
+        <a class="nav-item" data-view="sentiment" id="nav-sentiment" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <span>Sentiment Analysis</span>
+        </a>
+
+        <a class="nav-item" data-view="channels" id="nav-channels" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          <span>Feedback Channels</span>
+        </a>
+
+        <a class="nav-item" data-view="explorer" id="nav-explorer" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></svg>
+          <span>Review Explorer</span>
+        </a>
+
+        <a class="nav-item" data-view="topics" id="nav-topics" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          <span>Topics & Keywords</span>
+        </a>
+
+        <span class="nav-section-title" style="margin-top: 14px;">Machine Learning</span>
+
+        <a class="nav-item" data-view="performance" id="nav-performance" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+          <span>Model Performance</span>
+        </a>
+
+        <a class="nav-item" data-view="settings" id="nav-settings" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div style="display: flex; align-items: center;">
+          <span class="sidebar-status-dot"></span>
+          <span>TF-IDF + LogReg Online</span>
+        </div>
+        <span style="font-family: var(--font-mono); font-size: 11px;">v1.2</span>
+      </div>
+    </aside>
+
+    <!-- ==================================================================== -->
+    <!-- 2. Main Wrapper                                                      -->
+    <!-- ==================================================================== -->
+    <div class="main-wrapper">
+
+      <!-- Topbar Navigation -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle navigation menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+
+          <div class="topbar-search">
+            <svg class="topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="topbar-search-input" placeholder="Search reviews or press Enter to filter..." aria-label="Global search">
+            <span class="topbar-search-kbd">Ctrl+K</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="btn btn-sm btn-stone action-import-reviews" title="Import reviews from CSV">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+          </button>
+
+          <button class="btn btn-sm btn-stone action-export-report" title="Export review intelligence report">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+
+          <!-- Notifications Button & Dropdown -->
+          <div style="position: relative;">
+            <button class="icon-btn" id="btn-topbar-notifications" aria-label="Notifications" title="Notifications">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="badge-dot"></span>
+            </button>
+            <div class="dropdown-menu" id="notifications-dropdown">
+              <div style="padding: 10px 12px; font-weight: 700; font-size: 13px; border-bottom: 1px solid var(--color-stone-light);">
+                System Notifications
+              </div>
+              <div style="padding: 12px; font-size: 12.5px; border-bottom: 1px solid var(--color-stone-light);">
+                <span style="color: var(--sentiment-pos); font-weight: 600;">Model Trained:</span>
+                TF-IDF + Logistic Regression evaluated on held-out test split with 80.0% accuracy.
+              </div>
+              <div style="padding: 12px; font-size: 12.5px;">
+                <span style="color: var(--color-coral); font-weight: 600;">Dataset Ready:</span>
+                Multi-channel review dataset active and classified.
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Button & Dropdown -->
+          <div style="position: relative;">
+            <button class="user-profile-btn" id="btn-topbar-user" aria-label="User Workspace Menu">
+              <div class="user-avatar">RS</div>
+              <span class="user-name">Analytics Team</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-menu" id="user-dropdown">
+              <div style="padding: 10px 12px; font-weight: 700; font-size: 13px; border-bottom: 1px solid var(--color-stone-light);">
+                Workspace Profile
+              </div>
+              <a class="nav-item" data-view="settings" style="color: var(--color-ink); padding: 8px 12px; font-size: 13px;">
+                Workspace Settings
+              </a>
+              <a class="nav-item action-reset-dataset" style="color: var(--sentiment-neg); padding: 8px 12px; font-size: 13px;">
+                Restore Starter Dataset
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <main class="content-body">
+
+        <!-- Universal Page Header -->
+        <div class="page-header">
+          <div class="page-title-wrap">
+            <div class="page-breadcrumb" id="page-breadcrumb">Intelligence Dashboard</div>
+            <h1 class="page-title" id="page-title">ReviewSense</h1>
+            <p class="page-subtitle" id="page-subtitle">Turn customer feedback into meaningful insights.</p>
+          </div>
+
+          <div class="page-actions">
+            <!-- Date Filter -->
+            <select class="filter-select" id="dashboard-date-filter" aria-label="Date range filter">
+              <option value="all">All Available Dates</option>
+              <option value="30">Past 30 Days</option>
+              <option value="14">Past 14 Days</option>
+            </select>
+
+            <!-- Refresh Button -->
+            <button class="btn btn-stone" id="btn-refresh-dashboard" title="Refresh dashboard data">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+              Refresh
+            </button>
+
+            <!-- Import Action (Coral Primary Button) -->
+            <button class="btn btn-coral action-import-reviews" title="Import customer reviews from CSV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Import Reviews
+            </button>
+
+            <!-- Export Action -->
+            <button class="btn btn-stone action-export-report" title="Export current review intelligence to CSV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Report
+            </button>
+          </div>
+        </div>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 1: Overview Dashboard                                         -->
+        <!-- ================================================================== -->
+        <section class="page-view active" id="view-overview" aria-labelledby="page-title">
+
+          <!-- 4 Summary Metric Cards -->
+          <div class="summary-grid">
+            <!-- 1. Total Reviews -->
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <span class="summary-label">Total Reviews</span>
+                <div class="summary-icon-box">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                </div>
+              </div>
+              <div class="summary-value" id="metric-total-reviews">0</div>
+              <div class="summary-meta">
+                <span>Multi-channel feedback records</span>
+              </div>
+            </div>
+
+            <!-- 2. Positive Reviews -->
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <span class="summary-label">Positive Reviews</span>
+                <div class="summary-icon-box" style="color: var(--sentiment-pos); background: var(--sentiment-pos-bg);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+                </div>
+              </div>
+              <div class="summary-value" id="metric-pos-count">0</div>
+              <div class="summary-meta">
+                <span class="summary-pct pct-pos" id="metric-pos-pct">0.0%</span>
+                <span>Satisfied customer ratio</span>
+              </div>
+            </div>
+
+            <!-- 3. Neutral Reviews -->
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <span class="summary-label">Neutral Reviews</span>
+                <div class="summary-icon-box" style="color: var(--sentiment-neu); background: var(--sentiment-neu-bg);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </div>
+              </div>
+              <div class="summary-value" id="metric-neu-count">0</div>
+              <div class="summary-meta">
+                <span class="summary-pct pct-neu" id="metric-neu-pct">0.0%</span>
+                <span>Mixed / baseline feedback</span>
+              </div>
+            </div>
+
+            <!-- 4. Negative Reviews -->
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <span class="summary-label">Negative Reviews</span>
+                <div class="summary-icon-box" style="color: var(--sentiment-neg); background: var(--sentiment-neg-bg);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+                </div>
+              </div>
+              <div class="summary-value" id="metric-neg-count">0</div>
+              <div class="summary-meta">
+                <span class="summary-pct pct-neg" id="metric-neg-pct">0.0%</span>
+                <span>Requires priority triage</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row: Sentiment Trend (2/3) + Donut Distribution (1/3) -->
+          <div class="dashboard-grid">
+            <!-- Sentiment Trend Line Chart -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Sentiment Trend Over Time</h3>
+                  <span class="card-subtitle">Daily count of positive, neutral, and negative reviews</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="sentiment-trend-canvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Sentiment Distribution Donut Chart -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Sentiment Distribution</h3>
+                  <span class="card-subtitle">Overall proportion across active dataset</span>
+                </div>
+              </div>
+              <div class="donut-chart-container">
+                <canvas id="sentiment-donut-canvas"></canvas>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-item">
+                  <span class="legend-dot" style="background: var(--sentiment-pos);"></span>
+                  <span>Positive</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background: var(--sentiment-neu);"></span>
+                  <span>Neutral</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background: var(--sentiment-neg);"></span>
+                  <span>Negative</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insights Row: Feedback Channels & Customer Feedback Themes -->
+          <div class="dashboard-grid-equal">
+            <!-- Feedback Channels Breakdown -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Feedback Channels Breakdown</h3>
+                  <span class="card-subtitle">Volume and sentiment proportions per source</span>
+                </div>
+                <a href="#" data-nav-to="channels" class="btn btn-sm btn-stone">View All Channels</a>
+              </div>
+              <div class="channel-list" id="channels-summary-list">
+                <!-- Hydrated dynamically by JS -->
+              </div>
+            </div>
+
+            <!-- Customer Feedback Themes -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Customer Feedback Themes</h3>
+                  <span class="card-subtitle">Recurrent topics extracted from review text</span>
+                </div>
+                <a href="#" data-nav-to="topics" class="btn btn-sm btn-stone">Explore Taxonomy</a>
+              </div>
+              <div id="themes-summary-list">
+                <!-- Hydrated dynamically by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Analysis Row: Word Frequency & Single Review Analyzer -->
+          <div class="dashboard-grid-equal">
+            <!-- Word Frequency -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Word Frequency Intelligence</h3>
+                  <span class="card-subtitle">Top occurring terms (stopwords excluded)</span>
+                </div>
+              </div>
+              <div class="word-freq-selector">
+                <button class="freq-tab active" data-sentiment="All">All Sentiments</button>
+                <button class="freq-tab" data-sentiment="Positive">Positive</button>
+                <button class="freq-tab" data-sentiment="Neutral">Neutral</button>
+                <button class="freq-tab" data-sentiment="Negative">Negative</button>
+              </div>
+              <div class="freq-list" id="word-freq-container">
+                <!-- Hydrated dynamically by JS -->
+              </div>
+            </div>
+
+            <!-- Single Review Quick Analyzer -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Analyze Single Review</h3>
+                  <span class="card-subtitle">Live inference using the TF-IDF + Logistic Regression model</span>
+                </div>
+              </div>
+              <form id="review-analyzer-form">
+                <div class="analyzer-input-wrap">
+                  <textarea id="review-analyzer-textarea" class="analyzer-textarea" placeholder="Paste or type a customer review here (e.g. 'Customer support was exceptionally fast and resolved my inquiry within minutes!')..." rows="3"></textarea>
+                </div>
+                <div class="analyzer-actions">
+                  <span class="analyzer-disclaimer">Confidence is a probability estimate.</span>
+                  <button type="button" id="btn-analyze-review" class="btn btn-coral">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    Analyze Sentiment
+                  </button>
+                </div>
+              </form>
+
+              <!-- Result Card -->
+              <div id="analyzer-result-card" class="analyzer-result"></div>
+            </div>
+          </div>
+
+          <!-- Recent Reviews Preview Table -->
+          <div class="dashboard-card" style="margin-top: 28px;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h3 class="card-title">Recent Customer Reviews</h3>
+                <span class="card-subtitle">Click any row to inspect confidence probabilities and normalized tokens</span>
+              </div>
+              <a href="#" data-nav-to="explorer" class="btn btn-sm btn-stone">Open Review Explorer</a>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50%;">Review</th>
+                    <th>Sentiment</th>
+                    <th>Confidence</th>
+                    <th>Channel</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-recent-table-body">
+                  <!-- Hydrated dynamically by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 2: Sentiment Analysis Deep Dive                               -->
+        <!-- ================================================================== -->
+        <section class="page-view" id="view-sentiment" aria-labelledby="page-title">
+          <div class="analyzer-box">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Single Review Sentiment Classifier</h3>
+            <p style="font-size: 13.5px; color: var(--color-ink-muted); margin-bottom: 16px;">
+              Input custom feedback to test the trained machine learning pipeline. The engine performs lowercase normalization, URL stripping, regex alphanumeric tokenization, and computes class probability distributions.
+            </p>
+            <div class="analyzer-input-wrap">
+              <textarea id="review-analyzer-textarea-page" class="analyzer-textarea" placeholder="Type or paste any customer comment..." rows="4"></textarea>
+            </div>
+            <div class="analyzer-actions">
+              <span class="analyzer-disclaimer">Evaluates against unigrams & bigrams feature matrix.</span>
+              <button type="button" id="btn-analyze-review-page" class="btn btn-coral">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                Analyze Sentiment
+              </button>
+            </div>
+            <div id="analyzer-result-card-page" class="analyzer-result"></div>
+          </div>
+
+          <div class="dashboard-grid-equal">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h4 class="card-title">Classification Methodology</h4>
+                  <span class="card-subtitle">How ReviewSense calculates polarity</span>
+                </div>
+              </div>
+              <div style="font-size: 13.5px; color: var(--color-ink); line-height: 1.6;">
+                <p style="margin-bottom: 12px;">
+                  1. <strong>Text Cleaning:</strong> Strips markup, normalizes whitespace, standardizes punctuation.
+                </p>
+                <p style="margin-bottom: 12px;">
+                  2. <strong>Vectorization:</strong> Sublinear TF-IDF scaling over unigram and bigram word pairings.
+                </p>
+                <p style="margin-bottom: 12px;">
+                  3. <strong>Logistic Regression:</strong> Balanced class weights ensure minority classes are not penalized.
+                </p>
+                <p>
+                  4. <strong>Probabilities:</strong> Softmax function outputs calibrated confidence across Positive, Neutral, and Negative.
+                </p>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h4 class="card-title">Confidence Interpretation Guide</h4>
+                  <span class="card-subtitle">Understanding model score bands</span>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px;">
+                <div style="padding: 10px 14px; background: var(--color-paper); border-left: 4px solid var(--sentiment-pos); border-radius: var(--radius-xs);">
+                  <strong>High Confidence (&gt; 65%):</strong> Unambiguous positive or negative sentiment signals.
+                </div>
+                <div style="padding: 10px 14px; background: var(--color-paper); border-left: 4px solid var(--sentiment-neu); border-radius: var(--radius-xs);">
+                  <strong>Moderate Confidence (40% - 65%):</strong> Neutral feedback, balanced pros/cons, or subtle opinions.
+                </div>
+                <div style="padding: 10px 14px; background: var(--color-paper); border-left: 4px solid var(--sentiment-neg); border-radius: var(--radius-xs);">
+                  <strong>Low Margin (&lt; 40% plurality):</strong> Mixed opinions or short text without strong sentiment tokens.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 3: Feedback Channels                                          -->
+        <!-- ================================================================== -->
+        <section class="page-view" id="view-channels" aria-labelledby="page-title">
+          <div class="dashboard-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h3 class="card-title">Channel Sentiment Comparison</h3>
+                <span class="card-subtitle">Comprehensive breakdown across all imported customer touchpoints</span>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Channel</th>
+                    <th>Total Reviews</th>
+                    <th>Positive</th>
+                    <th>Neutral</th>
+                    <th>Negative</th>
+                    <th>Sentiment Ratio</th>
+                  </tr>
+                </thead>
+                <tbody id="channels-table-body">
+                  <!-- Hydrated dynamically by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 4: Review Explorer                                            -->
+        <!-- ================================================================== -->
+        <section class="page-view" id="view-explorer" aria-labelledby="page-title">
+          <div class="dashboard-card">
+            <!-- Explorer Controls -->
+            <div class="explorer-controls">
+              <div class="explorer-filters">
+                <input type="text" id="explorer-search-input" class="filter-select" style="width: 240px;" placeholder="Search review text...">
+
+                <select id="explorer-sentiment-filter" class="filter-select" aria-label="Filter by sentiment">
+                  <option value="All">All Sentiments</option>
+                  <option value="Positive">Positive</option>
+                  <option value="Neutral">Neutral</option>
+                  <option value="Negative">Negative</option>
+                </select>
+
+                <select id="explorer-channel-filter" class="filter-select" aria-label="Filter by channel">
+                  <option value="All">All Channels</option>
+                </select>
+
+                <button id="explorer-clear-filters" class="btn btn-sm btn-stone" title="Reset all filters">
+                  Clear Filters
+                </button>
+              </div>
+
+              <div style="font-size: 13px; color: var(--color-ink-muted);">
+                Showing <strong id="explorer-total-count">0 reviews</strong>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-sort="review" style="width: 48%;">Review Text &#8597;</th>
+                    <th data-sort="sentiment">Sentiment &#8597;</th>
+                    <th data-sort="confidence">Confidence &#8597;</th>
+                    <th data-sort="channel">Channel &#8597;</th>
+                    <th data-sort="date">Date &#8597;</th>
+                  </tr>
+                </thead>
+                <tbody id="explorer-table-body">
+                  <!-- Hydrated dynamically by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="table-pagination">
+              <span id="explorer-page-indicator">Page 1 of 1</span>
+              <div class="pagination-btns">
+                <button id="explorer-prev-page" class="btn btn-sm btn-stone" disabled>Previous</button>
+                <button id="explorer-next-page" class="btn btn-sm btn-stone" disabled>Next</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 5: Topics & Keywords                                          -->
+        <!-- ================================================================== -->
+        <section class="page-view" id="view-topics" aria-labelledby="page-title">
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Customer Feedback Themes</h3>
+            <p style="font-size: 13.5px; color: var(--color-ink-muted);">
+              Lexical clustering across product quality, shipping, customer service, pricing, and hardware reliability.
+            </p>
+          </div>
+          <div id="topics-full-list">
+            <!-- Hydrated dynamically by JS -->
+          </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 6: Model Performance                                          -->
+        <!-- ================================================================== -->
+        <section class="page-view" id="view-performance" aria-labelledby="page-title">
+          <!-- 4 Model Metric Cards -->
+          <div class="metric-cards-grid">
+            <div class="summary-card">
+              <span class="summary-label">Test Accuracy</span>
+              <div class="summary-value" id="metric-model-accuracy">80.0%</div>
+              <div class="summary-meta">Evaluated on held-out test split</div>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">Macro F1-Score</span>
+              <div class="summary-value" id="metric-model-f1">79.96%</div>
+              <div class="summary-meta">Balanced across all 3 classes</div>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">Macro Precision</span>
+              <div class="summary-value" id="metric-model-precision">80.95%</div>
+              <div class="summary-meta">Average positive predictive value</div>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">Macro Recall</span>
+              <div class="summary-value" id="metric-model-recall">80.09%</div>
+              <div class="summary-meta">Average sensitivity per category</div>
+            </div>
+          </div>
+
+          <!-- Confusion Matrix & Per-Class Table Row -->
+          <div class="dashboard-grid-equal">
+            <!-- Confusion Matrix -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h4 class="card-title">3x3 Confusion Matrix</h4>
+                  <span class="card-subtitle">True Ground Truth vs Model Prediction (Test Split)</span>
+                </div>
+              </div>
+              <div id="confusion-matrix-container">
+                <!-- Hydrated dynamically by JS -->
+              </div>
+              <p style="font-size: 12px; color: var(--color-ink-subtle); margin-top: 14px;">
+                Green cells along the diagonal denote correct classifications. Off-diagonal cells represent misclassifications between adjacent sentiments.
+              </p>
+            </div>
+
+            <!-- Per-Class Metrics Table -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h4 class="card-title">Class-Level Precision & Recall</h4>
+                  <span class="card-subtitle">Per-class performance breakdown</span>
+                </div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Class</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>Support</th>
+                  </tr>
+                </thead>
+                <tbody id="per-class-metrics-body">
+                  <!-- Hydrated dynamically by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Architecture & Limitations Panel -->
+          <div class="dashboard-card" style="margin-top: 24px;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h4 class="card-title">Model Specifications & Limitations</h4>
+                <span class="card-subtitle">Architectural facts and operational boundaries</span>
+              </div>
+            </div>
+            <div style="font-size: 13.5px; color: var(--color-ink); line-height: 1.6;">
+              <p style="margin-bottom: 8px;">
+                <strong>Pipeline:</strong> TF-IDF unigram + bigram feature extraction with sublinear term frequency scaling, followed by balanced L2-regularized Logistic Regression.
+              </p>
+              <p style="margin-bottom: 8px;">
+                <strong>Version:</strong> <code id="model-perf-version" style="font-family: var(--font-mono);">v1.2-tfidf-logreg</code>
+              </p>
+              <p style="margin-bottom: 8px;">
+                <strong>Dataset:</strong> <span id="model-perf-samples">Stratified customer review dataset</span>
+              </p>
+              <p style="margin-bottom: 8px; color: #78350F; background: var(--sentiment-neu-bg); padding: 10px 14px; border-radius: var(--radius-xs);">
+                <strong>Operational Note:</strong> This model is intended for review feedback triage and sentiment trend analysis. Reviews with heavy sarcasm, domain-specific acronyms, or contradictory compound clauses may exhibit lower confidence.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- VIEW 7: System Settings                                            -->
+        <!-- ================================================================== -->
+        <section class="page-view" id="view-settings" aria-labelledby="page-title">
+          <div class="dashboard-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h3 class="card-title">Dataset Management</h3>
+                <span class="card-subtitle">Manage active feedback repository and reset options</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--color-stone-light);">
+                <div>
+                  <strong style="display: block; font-size: 14px;">Restore Sample Starter Dataset</strong>
+                  <span style="font-size: 12.5px; color: var(--color-ink-muted);">
+                    Replaces the current active reviews with the curated multi-channel demo dataset.
+                  </span>
+                </div>
+                <button class="btn btn-sm btn-stone action-reset-dataset">
+                  Restore Starter Data
+                </button>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong style="display: block; font-size: 14px;">Export Complete Dataset</strong>
+                  <span style="font-size: 12.5px; color: var(--color-ink-muted);">
+                    Download all currently stored reviews with sentiment labels and confidence scores.
+                  </span>
+                </div>
+                <button class="btn btn-sm btn-coral action-export-report">
+                  Download CSV
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h3 class="card-title">About ReviewSense</h3>
+                <span class="card-subtitle">Customer Review Intelligence SaaS Engine</span>
+              </div>
+            </div>
+            <div style="font-size: 13.5px; color: var(--color-ink); line-height: 1.6;">
+              <p style="margin-bottom: 10px;">
+                ReviewSense is built with a lightweight Python/Flask backend, scikit-learn TF-IDF & Logistic Regression NLP pipeline, and an editorial SaaS dashboard frontend.
+              </p>
+              <p style="color: var(--color-ink-muted);">
+                Brand Palette: Paper (<code>#F6F4F1</code>), Stone (<code>#E4DED2</code>), Coral (<code>#F95C4B</code>), Black (<code>#000000</code>), White (<code>#FFFFFF</code>).
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- MODAL: CSV Import                                                      -->
+  <!-- ====================================================================== -->
+  <div class="modal-backdrop" id="import-csv-modal" role="dialog" aria-modal="true" aria-labelledby="modal-import-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-import-title">Import Reviews from CSV</h3>
+        <button class="modal-close-btn close-import-modal" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--color-ink-muted); margin-bottom: 16px;">
+          Upload a CSV file containing customer feedback. We auto-detect review text (e.g. <strong>ReviewText</strong>, <strong>review</strong>, <strong>feedback</strong>, <strong>comment</strong>) and optional <strong>channel</strong> / <strong>date</strong> (e.g. <strong>ReviewDate</strong>).
+        </p>
+
+        <div class="dropzone" id="csv-dropzone">
+          <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="selected-file-label" style="font-size: 14px; font-weight: 500; color: var(--color-ink);">
+            Drag and drop your CSV here, or click to browse
+          </div>
+          <span style="display: block; font-size: 12px; color: var(--color-ink-subtle); margin-top: 6px;">Supported: .csv files up to 16MB</span>
+          <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+        </div>
+
+        <div id="import-error-msg" style="display: none; margin-top: 14px; padding: 10px 14px; background: var(--sentiment-neg-bg); color: var(--sentiment-neg-text); border-radius: var(--radius-xs); font-size: 13px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-stone close-import-modal">Cancel</button>
+        <button class="btn btn-coral" id="btn-execute-upload" disabled>Import Reviews</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- MODAL: Review Detail Inspection                                        -->
+  <!-- ====================================================================== -->
+  <div class="modal-backdrop" id="review-detail-modal" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-detail-title">Review Inspection</h3>
+        <button class="modal-close-btn" onclick="Explorer.closeDetailModal()" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <span id="modal-review-sentiment" class="sentiment-badge badge-pos">Positive</span>
+          <span style="font-size: 13px; color: var(--color-ink-muted);">
+            Confidence: <strong id="modal-review-confidence" style="color: var(--color-black);">0%</strong>
+          </span>
+        </div>
+
+        <div style="padding: 16px; background: var(--color-paper); border-radius: var(--radius-sm); border: 1px solid var(--color-stone-light); margin-bottom: 16px;">
+          <p id="modal-review-text" style="font-size: 15px; line-height: 1.6; color: var(--color-ink);"></p>
+        </div>
+
+        <div style="display: flex; gap: 24px; font-size: 13px; color: var(--color-ink-muted);">
+          <div>Source Channel: <strong id="modal-review-channel" style="color: var(--color-black);">Website</strong></div>
+          <div>Review Date: <strong id="modal-review-date" style="color: var(--color-black);">2026-10-20</strong></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-stone" onclick="Explorer.closeDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Core Frontend Modules -->
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/explorer.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/import-export.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
